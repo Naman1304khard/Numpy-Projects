@@ -1,0 +1,56 @@
+import numpy as np
+import pandas as pd
+
+# Sample data (can be replaced with CSV)
+def load_sample_data():
+    data = {
+        'Age': [25, np.nan,30,29,1000,22, 28, np.nan,31,26],
+        'Salary': [50000, 55000, np.nan, 52000, 51000, 50500, 800000, 48000, 50000, 49000],   
+    }
+    return pd.DataFrame(data)
+
+# Step 1 : Handle missing values
+def fill_missing_values(df):
+    return df.fillna(df.mean(numeric_only=True))
+
+#Step 2:outlier detection and removal using Z-score
+def remove_outliers(df,threshold=3):
+    numeric_df = df.select_dtypes(include=[np.number])
+    z_score = (numeric_df - numeric_df.mean()) / numeric_df.std()
+    mask = (np.abs(z_score) < threshold).all(axis=1)
+    return df[mask]
+
+# Step 3: Normalize (Min-Max scaling)
+def normalize_data(df):
+    numeric_df = df.select_dtypes(include=[np.number])
+    normalized = (numeric_df - numeric_df.min()) / (numeric_df.max()- numeric_df.min())
+    df[normalized.columns] = normalized
+    return df
+
+#Step 4: Standardzie (Z-score scaling)
+def standardrize_data(df):
+    numeric_df = df.select_dtypes(include=[np.number])
+    standardized = (numeric_df - numeric_df.mean()) / numeric_df.std()
+    df[standardized.columns] = standardized
+    return df
+
+# Main Pipeline Function
+def clean_and_transform(df, normalize=True):
+    print("Original Data:\n", df)
+
+    df = fill_missing_values(df)
+    print("\n After Remmoving Outliers:\n", df)
+
+    if normalize:
+        df = normalize_data(df)
+        print("\n After Normalization:\n",df)
+    else:
+        df = standardrize_data(df)
+        print("\n After Standardization:\n", df)
+
+    return df
+    
+    # Run pipeline
+if __name__ == "__main__":
+    df = load_sample_data()
+    cleaned_df = clean_and_transform(df, normalize=True)
